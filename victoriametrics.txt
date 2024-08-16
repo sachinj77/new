@@ -1,0 +1,72 @@
+curl 'http://localhost:8428/api/v1/export' -d 'match[]={__name__="CPU utilization"}'
+curl 'http://localhost:8428/api/v1/export' -d 'match[]={__name__!=""}
+curl 'http://localhost:8428/api/v1/export' -d 'match[]={host="Zabbix server"}'
+
+curl http://homeassistant:8428/api/v1/export -d 'match[]=kWh_value{entity_id="total_energy"}' -d 'start=-1h' -d 'end=now' | jq
+
+
+If Grafana panels using VictoriaMetrics as a data source are showing a 15-second interval while the data queried from VictoriaMetrics directly shows a 1-minute interval, it could be due to a mismatch between the resolution of the data you’re querying and the resolution configured in Grafana. Here’s how to address this:
+1. Check Grafana Panel Settings
+
+    Time Range and Resolution: In the Grafana panel, ensure that the time range and resolution settings are correctly configured.
+        Open the panel settings and navigate to the Query Options.
+        Check the Min Interval setting, which defines the minimum interval for the data points.
+
+2. Adjust the step Parameter
+
+The step parameter in your Grafana query might be set to a smaller value, causing Grafana to request more frequent data points. To adjust this:
+
+    Edit the panel and go to the Query tab.
+    Find the step parameter in the query. Ensure it matches or exceeds the data resolution from VictoriaMetrics.
+
+3. Verify VictoriaMetrics Query Parameters
+
+When querying VictoriaMetrics directly, make sure that the step parameter is set correctly. For example, if you query with a 1-minute interval, ensure that the step parameter is set to 60s.
+4. Check Data Source Configuration
+
+Verify that your VictoriaMetrics data source in Grafana is configured correctly:
+
+    Go to Grafana Settings -> Data Sources -> VictoriaMetrics.
+    Check the configuration settings and ensure that there are no misconfigurations related to the interval or resolution.
+
+5. Review VictoriaMetrics Data Export
+
+Ensure that the data being exported to VictoriaMetrics is consistent with the interval you expect. If the data is aggregated at a 1-minute interval, but the panel is showing a 15-second interval, this could indicate a mismatch between the data export frequency and the panel’s settings.
+6. Consult Grafana and VictoriaMetrics Documentation
+
+Review the Grafana documentation and VictoriaMetrics documentation for any specific settings or configurations related to data intervals and resolutions.
+Example Adjustments:
+
+    Grafana Query Example:
+
+    plaintext
+
+    my_metric[1m]
+
+    Make sure this reflects the desired interval.
+
+    Grafana Panel Configuration:
+        Set Min Interval to 1m or appropriate value.
+
+By ensuring consistency in the data interval across VictoriaMetrics, Grafana settings, and queries, you should be able to resolve the discrepancy between the expected and displayed intervals. If the problem persists, providing more details about the configuration and settings might help in diagnosing the issue further.
+
+
+
+
+--###################################################
+
+
+
+Links
+
+https://docs.victoriametrics.com/quick-start/
+https://www.zabbix.com/documentation/current/en/manual/config/export/streaming
+https://git.zabbix.com/projects/ZT/repos/receiver/browse
+https://docs.victoriametrics.com/#how-to-export-data-in-json-line-format
+https://docs.victoriametrics.com/#how-to-export-time-series
+https://docs.victoriametrics.com/#how-to-import-time-series-data
+https://docs.victoriametrics.com/keyconcepts/
+https://www.epochconverter.com/
+https://www.howtogeek.com/devops/how-to-run-grafana-in-a-docker-container/
+https://soufianebouchaara.com/benchmarking-influxdb-vs-victoriametrics-choosing-the-right-time-series-database/
+https://github.com/VictoriaMetrics/victoriametrics-datasource
