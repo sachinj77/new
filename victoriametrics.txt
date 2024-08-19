@@ -1,6 +1,9 @@
 curl 'http://localhost:8428/api/v1/export' -d 'match[]={__name__="CPU utilization"}'
 curl 'http://localhost:8428/api/v1/export' -d 'match[]={__name__!=""}
 curl 'http://localhost:8428/api/v1/export' -d 'match[]={host="Zabbix server"}'
+curl 'http://localhost:8428/api/v1/export'-d 'match[]={host="zabbixha2", __name__="CPU utilization"}'
+
+{host="zabbixha2",__name__!=""}
 
 curl http://homeassistant:8428/api/v1/export -d 'match[]=kWh_value{entity_id="total_energy"}' -d 'start=-1h' -d 'end=now' | jq
 
